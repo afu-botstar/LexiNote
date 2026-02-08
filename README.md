@@ -161,7 +161,7 @@ Feel free to contribute or report issues!
 1. 打开 Chrome，地址栏输入：`chrome://extensions/`
 2. 右上角打开「开发者模式」。
 3. 点击「加载已解压的扩展程序」。
-4. 选择本项目的根目录（即包含 `manifest.json` 的 `wordmaster` 文件夹）。
+4. 选择本项目的根目录（即包含 `manifest.json` 的 `LexiNote` 文件夹）。
 
 ## 使用
 
