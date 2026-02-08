@@ -1,3 +1,133 @@
+# LexiNote – A Simple Chrome Extension for English Learning
+
+LexiNote is a lightweight Chrome extension designed to help English learners collect, review, and memorize new words and phrases encountered during daily browsing.
+
+It automatically records words from Google Translate and allows manual input, then organizes them into daily learning lists with examples and simple explanations.
+
+---
+
+## Features
+
+### 1. Automatic Word Collection
+
+LexiNote can automatically capture words or phrases from:
+
+- **Google Translate** – When you input text and get a translation, the source word or sentence is automatically saved.
+- **Manual Input** – You can also add any word or phrase directly through the extension popup.
+
+---
+
+### 2. Organized Learning Cards
+
+- Each saved word or phrase becomes an independent learning card.
+- Cards include:
+  - The original word/phrase  
+  - Up to 3 example sentences (B2 level)
+  - A simple English explanation (B1 level)
+
+If no example is available, the extension will display:  
+*“No example available.”*
+
+---
+
+### 3. Simple Definitions for B1 Level
+
+When you hover over a saved word, LexiNote shows a short and easy-to-understand English definition, suitable for intermediate learners.
+
+---
+
+### 4. Daily Organization
+
+- Words are grouped by the date they were added.
+- You can filter and review words from:
+  - Today  
+  - Any specific day  
+  - All dates
+
+---
+
+### 5. Progress Tracking
+
+Each word card includes a checkbox system:
+
+- Mark a word as “mastered” after reviewing it.
+- Once checked **3 times**, the word is considered fully learned.
+
+---
+
+## Screenshots
+
+### Main Interface
+
+![Main Interface](screenshots/main.png)
+
+### Learned Words View
+
+![Learned Words](screenshots/learned.png)
+
+### Example Article & Definition
+
+![Article View](screenshots/article.png)
+
+---
+
+## Installation (Developer Mode)
+
+Since this extension is not yet published in the Chrome Web Store, you can install it manually:
+
+1. Download or clone this repository.
+2. Open Chrome and go to:
+chrome://extensions/
+
+3. Enable **Developer Mode** (top-right corner).
+4. Click **Load unpacked**.
+5. Select the `src` folder inside this project.
+
+The extension will now appear in your Chrome toolbar.
+
+---
+
+## Project Structure
+LexiNote/
+├── screenshots/ # Preview images
+├── src/ # Source code of the extension
+├── LICENSE # Open-source license
+└── README.md # Project documentation
+
+---
+
+## Technology
+
+- JavaScript  
+- Chrome Extensions API  
+- Free Dictionary API (for examples and definitions)
+
+---
+
+## License
+
+This project is open source and released under the MIT License.
+
+---
+
+## Future Plans
+
+- Add pronunciation support  
+- Export word lists  
+- Dark mode  
+- Support for more websites
+
+---
+
+## Author
+
+Created by **afu-botstar**
+
+Feel free to contribute or report issues!
+
+
+
+
 # LexiNote - 英语学习 Chrome 扩展
 
 记录你在 Google 翻译、豆包网页和手动输入的单词/短语，按日期展示，配合 B1 释义与 B2 例句，并通过「勾选 3 次」标记掌握。
