@@ -1,0 +1,56 @@
+{
+  "manifest_version": 3,
+  "name": "LexiNote - 英语学习",
+  "version": "1.0.0",
+  "description": "记录翻译查询的单词，生成 B2 例句，按日期复习，三次勾选掌握",
+  "permissions": ["storage", "activeTab"],
+  "host_permissions": [
+    "https://translate.google.com/*",
+    "https://*.translate.google.com/*",
+    "https://dict.youdao.com/*",
+    "https://api.dictionaryapi.dev/*",
+    "https://api.freedictionaryapi.com/*",
+    "https://api.datamuse.com/*",
+    "https://api.mymemory.translated.net/*",
+    "https://generativelanguage.googleapis.com/*",
+    "https://www.doubao.com/*",
+    "https://*.doubao.com/*",
+    "https://www.google.com/*",
+    "https://www.google.com.hk/*",
+    "https://text.pollinations.ai/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://translate.google.com/*", "https://*.translate.google.com/*"],
+      "js": ["content-google-translate.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://www.doubao.com/*", "https://*.doubao.com/*"],
+      "js": ["content-doubao.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://www.google.com/*", "https://www.google.com.hk/*", "https://www.google.com/search*"],
+      "js": ["content-google-search.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "LexiNote"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LexiNote</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header class="header">
+    <h1 class="title"><img src="icons/icon48.png" alt="" class="title-logo" />LexiNote</h1>
+  </header>
+
+  <nav class="tabs">
+    <button type="button" class="tab active" data-tab="unlearned">未学会</button>
+    <button type="button" class="tab" data-tab="learned">已学会</button>
+  </nav>
+
+  <section id="addSection" class="add-section">
+    <label class="add-label">手动添加</label>
+    <div class="add-row">
+      <input type="text" id="manualInput" class="add-input" placeholder="输入单词或短语..." />
+      <button type="button" id="addBtn" class="add-btn">添加</button>
+    </div>
+    <p id="addStatus" class="add-status"></p>
+  </section>
+
+  <section id="dateExportPanel" class="date-export-panel collapsed">
+    <div class="date-export-panel-header" id="dateExportPanelHeader" title="点击展开/收起">
+      <span class="date-export-panel-title">日期筛选与导出</span>
+      <span class="date-export-panel-summary" id="dateExportPanelSummary">全部</span>
+      <button type="button" class="date-export-panel-toggle" aria-label="展开收起"><span class="toggle-icon">+</span></button>
+    </div>
+    <div class="date-export-panel-body">
+      <div class="date-range-row">
+        <select id="dateStartFilter" class="date-filter" title="开始日期">
+          <option value="">全部</option>
+        </select>
+        <span class="date-range-sep">—</span>
+        <select id="dateEndFilter" class="date-filter" title="结束日期">
+          <option value="">全部</option>
+        </select>
+      </div>
+      <div class="date-export-actions">
+        <button type="button" id="confirmFilterBtn" class="add-btn date-export-action-btn" title="应用当前日期区间并刷新列表">确认筛选</button>
+        <button type="button" id="exportRangeBtn" class="add-btn date-export-action-btn export-range-btn" title="导出当前日期区间内的单词为 txt">导出 txt</button>
+      </div>
+    </div>
+  </section>
+
+  <main id="wordList" class="word-list">
+    <!-- 未学会 / 已学会 按 Tab 显示 -->
+  </main>
+
+  <script src="popup.js"></script>
+</body>
+</html>
