@@ -116,10 +116,11 @@ async function fetchWordData(text) {
   try {
     if (!dictRes.ok) {
       const { zhNote, collocations: colls, fallbackExamples, exText } = buildFallback('', collocations, wiktionaryExamples);
-      const [finalZhNote, exampleZh] = await Promise.all([
+      const [rawZh, exampleZh] = await Promise.all([
         fetchZhNote(trimmedText.slice(0, 80)),
         exText ? fetchZhNote(exText.slice(0, 80)) : Promise.resolve('')
       ]);
+      const finalZhNote = isInvalidZhNote(rawZh) ? '' : simplifyZhTranslation(rawZh).slice(0, 50);
       return {
         definition: '',
         examples: fallbackExamples.slice(0, 1),
@@ -131,10 +132,11 @@ async function fetchWordData(text) {
     const data = await dictRes.json();
     if (!Array.isArray(data) || !data[0]) {
       const { zhNote, collocations: colls, fallbackExamples, exText } = buildFallback('', collocations, wiktionaryExamples);
-      const [finalZhNote, exampleZh] = await Promise.all([
+      const [rawZh, exampleZh] = await Promise.all([
         fetchZhNote(trimmedText.slice(0, 80)),
         exText ? fetchZhNote(exText.slice(0, 80)) : Promise.resolve('')
       ]);
+      const finalZhNote = isInvalidZhNote(rawZh) ? '' : simplifyZhTranslation(rawZh).slice(0, 50);
       return {
         definition: '',
         examples: fallbackExamples.slice(0, 1),
@@ -192,15 +194,25 @@ async function fetchWordData(text) {
     if (exText) zhPromises.push(fetchZhNote(exText.slice(0, 80)));
     const zhResults = await Promise.all(zhPromises);
 
-    let zhNote = '';
     const nDef = definitionTexts.length;
-    if (nDef > 0 && zhResults[0]) {
-      const parts = zhResults.slice(0, nDef).map((r) => (r && r.trim()) || '').filter(Boolean);
-      if (parts.length > 0) zhNote = parts.join('；').slice(0, 100);
-      const wordZh = zhResults[nDef];
-      if (wordZh && wordZh.trim() && !zhNote.includes(wordZh.trim())) zhNote = (zhNote + '（' + wordZh.trim().slice(0, 15) + '）').slice(0, 120);
+    const wordZh = (zhResults[nDef] && zhResults[nDef].trim()) ? zhResults[nDef].trim() : '';
+    const defPart1 = (zhResults[0] && zhResults[0].trim()) ? zhResults[0].trim() : '';
+    const defPart2 = (nDef > 1 && zhResults[1] && zhResults[1].trim()) ? zhResults[1].trim() : '';
+    const isSingleWord = trimmedText.indexOf(' ') === -1;
+    // 单个单词时优先用「单词直译」（如 several→几个），避免词典第一条是生僻义；短语时优先词典释义
+    let zhNote = '';
+    if (isSingleWord && !isInvalidZhNote(wordZh)) {
+      zhNote = simplifyZhTranslation(wordZh).slice(0, 50);
+    } else if (!isInvalidZhNote(defPart1)) {
+      zhNote = simplifyZhTranslation(defPart1).slice(0, 50);
+    } else if (!isSingleWord && !isInvalidZhNote(wordZh)) {
+      zhNote = simplifyZhTranslation(wordZh).slice(0, 50);
+    } else if (!isInvalidZhNote(defPart2)) {
+      zhNote = simplifyZhTranslation(defPart2).slice(0, 50);
+    } else {
+      const fallback = await fetchZhNote(trimmedText.slice(0, 80));
+      zhNote = isInvalidZhNote(fallback) ? '' : simplifyZhTranslation(fallback).slice(0, 50);
     }
-    if (!zhNote) zhNote = zhResults[nDef] || (await fetchZhNote(trimmedText.slice(0, 80)));
     const exampleZh = exText ? (zhResults[zhResults.length - 1] || '') : '';
 
     return {
@@ -212,10 +224,11 @@ async function fetchWordData(text) {
     };
   } catch (e) {
     const { fallbackExamples, exText } = buildFallback('', collocations, wiktionaryExamples);
-    const [zhNote, exampleZh] = await Promise.all([
+    const [rawZh, exampleZh] = await Promise.all([
       fetchZhNote(trimmedText.slice(0, 80)),
       exText ? fetchZhNote(exText.slice(0, 80)) : Promise.resolve('')
     ]);
+    const zhNote = isInvalidZhNote(rawZh) ? '' : simplifyZhTranslation(rawZh).slice(0, 50);
     return {
       definition: '',
       examples: fallbackExamples.slice(0, 1),
@@ -226,7 +239,32 @@ async function fetchWordData(text) {
   }
 }
 
-// 中文简短注释：MyMemory 免费翻译 API（英→中）
+// 判断是否为无效的中文释义（空、API 噪音、整句、过长等）
+function isInvalidZhNote(s) {
+  if (!s || typeof s !== 'string') return true;
+  const t = s.trim();
+  if (t.length < 1) return true;
+  if (t.length > 50) return true;  // 单词释义不宜过长，过长多为整句或杂项
+  if (/MYMEMORY|LIMIT EXCEEDED|translated\.net/i.test(t)) return true;
+  if (/^[\d\s，。；、\.\,\;\:\-\-\s]+$/.test(t)) return true;
+  if (/^[a-zA-Z\s]+$/.test(t)) return true;  // 纯英文视为无效
+  return false;
+}
+
+// 将翻译结果简化为「简单有效」的短句：去冗长括号、多余标点、合并空格，限制长度
+function simplifyZhTranslation(text) {
+  if (!text || typeof text !== 'string') return '';
+  let s = text.trim();
+  // 去掉括号及其内容（括号内若≤6字则保留，避免丢掉「（名）」「（动）」等有用信息）
+  s = s.replace(/（[^）]{7,}?）/g, '').replace(/\([^)]{7,}?\)/g, '');
+  s = s.replace(/（[^）]*）/g, (m) => (m.length <= 6 ? m : '')).replace(/\([^)]*\)/g, (m) => (m.length <= 6 ? m : ''));
+  // 合并多余空格与标点
+  s = s.replace(/\s+/g, ' ').replace(/[，,]\s*[，,]/g, '，').replace(/[；;]\s*[；;]/g, '；').trim();
+  s = s.replace(/^[，。；、\s]+|[，。；、\s]+$/g, '');
+  return s.slice(0, 80);
+}
+
+// 中文简短注释：MyMemory 免费翻译 API（英→中），返回经简化的结果
 async function fetchZhNote(text) {
   const t = text.trim().slice(0, 80);
   if (!t) return '';
@@ -237,7 +275,8 @@ async function fetchZhNote(text) {
     if (!res.ok) return '';
     const data = await res.json();
     const translated = data.responseData && data.responseData.translatedText;
-    return (translated && translated.trim()) ? translated.trim().slice(0, 100) : '';
+    const raw = (translated && translated.trim()) ? translated.trim() : '';
+    return raw ? simplifyZhTranslation(raw).slice(0, 100) : '';
   } catch (e) {
     return '';
   }

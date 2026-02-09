@@ -429,13 +429,14 @@ async function translateArticleInPopup(text) {
       const translated = data.responseData && data.responseData.translatedText;
       const err = data.responseStatus || 0;
       if (err !== 200 || !translated || /LIMIT EXCEEDED/i.test(String(translated))) continue;
-      results.push(translated.trim());
+      results.push(translated.trim().replace(/\s+/g, ' '));
     } catch (e) {
       if (e && e.message === '429') throw e;
       results.push('');
     }
   }
-  return results.join('').trim() || '';
+  const joined = results.join('').trim().replace(/\s+/g, ' ');
+  return joined || '';
 }
 
 function openArticleModal(date, text, words) {
